@@ -1,12 +1,6 @@
-/*   example.l
- 
-	Example of a lex specification file.
-     
-	To create the lexical analyzer:
-
-	flex example.l
-	g++ lex.yy.c -o lexer
-	lexer < inputFileName
+/* 	Mini-R lexical analyzer
+	Author: Curtis Brinker
+	Date: 	2020-08-31
 */
 
 %{
@@ -42,27 +36,29 @@ Definitions of constants, variables, & function prototypes go here
 #define T_MULT	  		19
 #define T_DIV	  		20
 #define T_MOD			21
-#define T_LT			22
-#define T_GT			23
-#define T_LE			24
-#define T_GE			25
-#define T_NE			26
-#define T_NOT			27
-#define T_AND			28
-#define T_OR			29
-#define T_ASSIGN		30
+#define T_POWER			22
+#define T_LT			23
+#define T_GT			24
+#define T_LE			25
+#define T_GE			26
+#define T_NE			27
+#define T_NOT			28
+#define T_AND			29
+#define T_OR			30
+#define T_EQ			31
+#define T_ASSIGN		32
 
 // Other symbols
-#define T_SEMICOLON		31
-#define T_COMMA			32
-#define T_LPAREN		33
-#define T_RPAREN		34
-#define T_LBRACKET		35
-#define T_RBRACKET		36
-#define T_LBRACE		37
-#define T_RBRACE		38
-#define T_COMMENT		39
-#define T_QUIT      	40
+#define T_SEMICOLON		33
+#define T_COMMA			34
+#define T_LPAREN		35
+#define T_RPAREN		36
+#define T_LBRACKET		37
+#define T_RBRACKET		38
+#define T_LBRACE		39
+#define T_RBRACE		30
+#define T_COMMENT		41
+#define T_QUIT      	42
 
 
 // Unknown
@@ -86,11 +82,11 @@ NEWLINE					\n
 DIGIT					[0-9]
 LETTER					[a-zA-Z]
 
-IDENT					{LETTER}({LETTER}|{DIGIT})* 
+IDENT					{LETTER}({LETTER}|{DIGIT}|_)* 
 
 INTCONST  				[+-]?{DIGIT}+
 FLOATCONST				[+-]?{DIGIT}*\.{DIGIT}+
-STRCONST				\"([^"]|\\\")*\"
+STRCONST				\"([^"\n]|\\\")*\"
 
 IF						if
 ELSE					else
@@ -105,20 +101,7 @@ CAT						cat
 READ					read
 LIST					list
 
-ADD	  					+
-SUB	  					-
-MULT	  				*
-DIV	  					/
-MOD						%%
-LT						<
-GT						>
-LE						<=
-GE						<=
-NE						!=
-NOT						!
-AND						&
-OR						|
-ASSIGN					=
+COMMENT					#.+$
 
 
 %%
@@ -127,7 +110,7 @@ ASSIGN					=
 		printTokenInfo("QUIT", yytext);
 		return T_QUIT;
 		}
-"+"	{
+"+"		{
 		printTokenInfo("ADD", yytext);
 		return T_ADD;
 		}
@@ -139,9 +122,89 @@ ASSIGN					=
 		printTokenInfo("MULT", yytext);
 		return T_MULT;
 		}
-"\\"	{
+"/"	{
 		printTokenInfo("DIV", yytext);
 		return T_DIV;
+		}
+"%%"	{
+		printTokenInfo("MOD", yytext);
+		return T_MOD;
+		}
+"^"		{
+		printTokenInfo("POWER", yytext);
+		return T_POWER;
+		}
+"<"		{
+		printTokenInfo("LT", yytext);
+		return T_LT;
+		}
+">"		{
+		printTokenInfo("GT", yytext);
+		return T_GT;
+		}
+"<="	{
+		printTokenInfo("LE", yytext);
+		return T_LE;
+		}
+">="	{
+		printTokenInfo("GE", yytext);
+		return T_GE;
+		}
+"!="	{
+		printTokenInfo("NE", yytext);
+		return T_NE;
+		}
+"!"		{
+		printTokenInfo("NOT", yytext);
+		return T_NOT;
+		}
+"&"		{
+		printTokenInfo("AND", yytext);
+		return T_AND;
+		}
+"|"		{
+		printTokenInfo("OR", yytext);
+		return T_OR;
+		}
+"=="	{
+		printTokenInfo("EQ", yytext);
+		return T_EQ;
+		}
+"="		{
+		printTokenInfo("ASSIGN", yytext);
+		return T_ASSIGN;
+		}
+";"		{
+		printTokenInfo("SEMICOLON", yytext);
+		return T_SEMICOLON;
+		}
+","		{
+		printTokenInfo("COMMA", yytext);
+		return T_COMMA;
+		}
+"("		{
+		printTokenInfo("LPAREN", yytext);
+		return T_LPAREN;
+		}
+")"		{
+		printTokenInfo("RPAREN", yytext);
+		return T_RPAREN;
+		}
+"["		{
+		printTokenInfo("LBRACKET", yytext);
+		return T_LBRACKET;
+		}
+"]"		{
+		printTokenInfo("RBRACKET", yytext);
+		return T_RBRACKET;
+		}
+"{"		{
+		printTokenInfo("LBRACE", yytext);
+		return T_LBRACE;
+		}
+"}"		{
+		printTokenInfo("RBRACE", yytext);
+		return T_RBRACE;
 		}
 {INTCONST}	{
 		printTokenInfo("INTCONST", yytext);
@@ -210,8 +273,8 @@ ASSIGN					=
 {NEWLINE}	{
 		numLines++;
 		}
-{WSPACE}	{ 
-		}
+{WSPACE}  {}
+{COMMENT} {}
 .		{
 		printTokenInfo("UNKNOWN", yytext);
 		return T_UNKNOWN;
@@ -223,7 +286,7 @@ ASSIGN					=
 
 void printTokenInfo(const char* tokenType, const char* lexeme) 
 {
-  printf("TOKEN: %-20s LEXEME: %s\n", tokenType, lexeme);
+  printf("TOKEN: %-19s LEXEME: %s\n", tokenType, lexeme);
 }
 
 // You should supply a yywrap function.
@@ -234,7 +297,8 @@ int main(void)
 {
   while ( yylex() ) ;  // Process tokens until 0 returned
 
-  printf("Processed %d lines\n", numLines);
+  // Don't print this for the assignment.
+  // printf("Processed %d lines\n", numLines);
   return 0;
 }
 
