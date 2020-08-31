@@ -10,3 +10,13 @@
 +.12
 -.12
 1.1.1
+
+"hello world"
+""
+"hi there"
+"woah \" there"
+"i'm \"\"\"\n\" tricky"
+
+if else while
+
+5 + 4

@@ -87,10 +87,38 @@ DIGIT					[0-9]
 LETTER					[a-zA-Z]
 
 IDENT					{LETTER}({LETTER}|{DIGIT})* 
+
 INTCONST  				[+-]?{DIGIT}+
 FLOATCONST				[+-]?{DIGIT}*\.{DIGIT}+
+STRCONST				\"([^"]|\\\")*\"
 
+IF						if
+ELSE					else
+WHILE					while
+FUNCTION				function
+FOR						for
+IN						in
+TRUE					TRUE
+FALSE					FALSE
+PRINT					print
+CAT						cat
+READ					read
+LIST					list
 
+ADD	  					+
+SUB	  					-
+MULT	  				*
+DIV	  					/
+MOD						%%
+LT						<
+GT						>
+LE						<=
+GE						<=
+NE						!=
+NOT						!
+AND						&
+OR						|
+ASSIGN					=
 
 
 %%
@@ -99,7 +127,7 @@ FLOATCONST				[+-]?{DIGIT}*\.{DIGIT}+
 		printTokenInfo("QUIT", yytext);
 		return T_QUIT;
 		}
-"+"		{
+"+"	{
 		printTokenInfo("ADD", yytext);
 		return T_ADD;
 		}
@@ -111,7 +139,7 @@ FLOATCONST				[+-]?{DIGIT}*\.{DIGIT}+
 		printTokenInfo("MULT", yytext);
 		return T_MULT;
 		}
-"\\"		{
+"\\"	{
 		printTokenInfo("DIV", yytext);
 		return T_DIV;
 		}
@@ -122,6 +150,58 @@ FLOATCONST				[+-]?{DIGIT}*\.{DIGIT}+
 {FLOATCONST} {
 		printTokenInfo("FLOATCONST", yytext);
 		return T_FLOATCONST;
+		}
+{STRCONST} {
+		printTokenInfo("STRCONST", yytext);
+		return T_STRCONST;
+		}
+{IF}	{
+		printTokenInfo("IF", yytext);
+		return T_IF;
+		}
+{ELSE}	{
+		printTokenInfo("ELSE", yytext);
+		return T_ELSE;
+		}
+{WHILE}	{
+		printTokenInfo("WHILE", yytext);
+		return T_WHILE;
+		}
+{FUNCTION}	{
+		printTokenInfo("FUNCTION", yytext);
+		return T_FUNCTION;
+		}
+{FOR}	{
+		printTokenInfo("FOR", yytext);
+		return T_FOR;
+		}
+{IN}	{
+		printTokenInfo("IN", yytext);
+		return T_IN;
+		}
+{TRUE}	{
+		printTokenInfo("TRUE", yytext);
+		return T_TRUE;
+		}
+{FALSE}	{
+		printTokenInfo("FALSE", yytext);
+		return T_FALSE;
+		}
+{PRINT}	{
+		printTokenInfo("PRINT", yytext);
+		return T_PRINT;
+		}
+{CAT}	{
+		printTokenInfo("CAT", yytext);
+		return T_CAT;
+		}
+{READ}	{
+		printTokenInfo("READ", yytext);
+		return T_READ;
+		}
+{LIST}	{
+		printTokenInfo("LIST", yytext);
+		return T_LIST;
 		}
 {IDENT}	{
 		printTokenInfo("IDENT", yytext);
